@@ -1,6 +1,7 @@
 # Arquivos de configuração sensíveis
 .env
 *.env
+!.env.example
 
 # Logs
 logs/
@@ -123,6 +124,6 @@ ehthumbs.db
 Thumbs.db
 
 # Arquivos temporários de teste
-teste_*.py
-demo_*.py
-temp_*
+# teste_*.py
+# demo_*.py
+# temp_*

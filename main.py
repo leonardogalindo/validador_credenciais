@@ -2,18 +2,19 @@
 """Ponto de entrada principal do validador de credenciais.
 
 Este módulo serve como ponto de entrada principal da aplicação,
-processando automaticamente arquivos CSV do diretório data/csv
-e validando credenciais via API da Locaweb.
+permitindo escolher entre diferentes serviços (Locaweb, Bling) e
+processando automaticamente arquivos CSV do diretório data/csv.
 Segue as diretrizes estabelecidas no GEMINI.md.
 """
 
 import logging
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Any
 
 from src import criar_validador_locaweb, criar_csv_handler
 from src.settings import setup_logging, initialize_app, AppConfig
+from src.menu import executar_selecao_empresa
 
 
 
@@ -42,11 +43,12 @@ def descobrir_arquivos_csv() -> List[Path]:
     return arquivos_csv
 
 
-def processar_arquivo_csv(arquivo_entrada: Path) -> None:
+def processar_arquivo_csv(arquivo_entrada: Path, validador: Any) -> None:
     """Processa um arquivo CSV com credenciais.
     
     Args:
         arquivo_entrada (Path): Caminho para arquivo CSV com credenciais.
+        validador (Any): Instância do validador (Locaweb ou Bling).
     """
     logger = logging.getLogger(__name__)
     audit_logger = logging.getLogger('audit')
@@ -58,12 +60,16 @@ def processar_arquivo_csv(arquivo_entrada: Path) -> None:
         logger.info(f"📁 Processando arquivo: {arquivo_entrada.name}")
         audit_logger.info(f"BATCH_VALIDATION_START - file: {arquivo_entrada.name}")
         
-        # Cria validador e processa
-        validador = criar_validador_locaweb()
-        resultados = validador.validar_credenciais_em_lote(
-            str(arquivo_entrada), 
-            incluir_senha_resultado=True  # Inclui senhas para o JSON
-        )
+        # Processa com o validador fornecido
+        if hasattr(validador, 'validar_credenciais_em_lote'):
+            # Validador Locaweb
+            resultados = validador.validar_credenciais_em_lote(
+                str(arquivo_entrada), 
+                incluir_senha_resultado=True  # Inclui senhas para o JSON
+            )
+        else:
+            # Validador Bling
+            resultados = validador.processar_arquivo_csv(str(arquivo_entrada))
         
         # Estatísticas
         total = len(resultados)
@@ -162,7 +168,8 @@ def criar_template_se_necessario() -> None:
 def main() -> int:
     """Função principal da aplicação.
     
-    Processa automaticamente todos os arquivos CSV encontrados no diretório data/csv.
+    Permite escolher o serviço (Locaweb/Bling) e processa automaticamente 
+    todos os arquivos CSV encontrados no diretório data/csv.
     
     Returns:
         int: Código de saída (0 = sucesso, 1 = erro).
@@ -179,17 +186,23 @@ def main() -> int:
         audit_logger = logging.getLogger('audit')
         
         # Log das configurações iniciais
-        settings_logger.debug("Aplicação iniciada - modo automático")
-        settings_logger.debug(f"URL da API: {AppConfig.LOCAWEB_LOGIN_URL}")
+        settings_logger.debug("Aplicação iniciada - modo interativo")
         settings_logger.debug(f"Timeout: {AppConfig.REQUEST_TIMEOUT}s")
         settings_logger.debug(f"Diretório CSV: {AppConfig.CSV_INPUT_DIR}")
         settings_logger.debug(f"Diretório saída JSON: {AppConfig.JSON_OUTPUT_DIR}")
         settings_logger.debug("Modo: Apenas JSON (CSV removido após processamento)")
         
-        print("=== Validador de Credenciais Locaweb ===")
-        print(f"Buscando arquivos CSV em: {AppConfig.CSV_INPUT_DIR}")
+        audit_logger.info("APPLICATION_START - modo interativo")
         
-        audit_logger.info("APPLICATION_START - modo automático")
+        # Executa menu de seleção de empresa
+        validador = executar_selecao_empresa()
+        
+        if validador is None:
+            print("\n👋 Operação cancelada pelo usuário.")
+            logger.info("Aplicação cancelada pelo usuário no menu")
+            return 0
+        
+        print(f"\nBuscando arquivos CSV em: {AppConfig.CSV_INPUT_DIR}")
         
         # Descobre arquivos CSV
         arquivos_csv = descobrir_arquivos_csv()
@@ -206,7 +219,7 @@ def main() -> int:
         for arquivo_csv in arquivos_csv:
             try:
                 print(f"\n--- Processando: {arquivo_csv.name} ---")
-                processar_arquivo_csv(arquivo_csv)
+                processar_arquivo_csv(arquivo_csv, validador)
                 arquivos_processados += 1
                 
             except Exception as e:
