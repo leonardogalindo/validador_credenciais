@@ -7,10 +7,7 @@ logs/
 *.log
 
 # Dados de entrada e saída
-data/csv/*.csv
-data/json/*.json
-!data/csv/.gitkeep
-!data/json/.gitkeep
+data/
 
 # Python
 __pycache__/
