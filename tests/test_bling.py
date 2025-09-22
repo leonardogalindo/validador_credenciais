@@ -47,46 +47,46 @@ class TestBlingCredentialValidator:
         assert validator.timeout == custom_timeout
     
     @pytest.mark.unit
-    @patch('src.bling.requests.post')
     @patch('src.bling.logger')
-    def test_validar_credencial_unica_sucesso(self, mock_logger, mock_post):
-        """Testa validação bem-sucedida de credencial única."""
-        # Configura mock para retornar status 201
-        mock_response = Mock()
-        mock_response.status_code = 201
-        mock_post.return_value = mock_response
-        
-        resultado = self.validator.validar_credencial_unica("user@test.com", "senha123")
-        
-        assert resultado is True
-        mock_post.assert_called_once()
-        
-        # Verifica se os headers de segurança foram incluídos
-        call_args = mock_post.call_args
-        headers = call_args[1]['headers']
-        assert headers['X-Security-Test'] == 'security-tests-bling'
-        assert 'Bling-Security-Test' in headers['User-Agent']
-        
-        # Verifica se o log de sucesso foi chamado
-        mock_logger.info.assert_called_with("✅ SUCESSO - Credenciais válidas para usuário: user@test.com")
+    def test_validar_credencial_unica_sucesso(self, mock_logger):
+        """Testa validação bem-sucedida de credencial única com método otimizado."""
+        # Mock do método otimizado
+        with patch.object(self.validator, '_executar_validacao_otimizada') as mock_exec:
+            mock_exec.return_value = {
+                'is_valid': True,
+                'status_code': 201,
+                'response_time': 150.5,
+                'error_details': None
+            }
+            
+            resultado = self.validator.validar_credencial_unica("user@test.com", "senha123")
+            
+            assert resultado is True
+            mock_exec.assert_called_once_with("user@test.com", "senha123")
+            
+            # Verifica se o log de sucesso foi chamado
+            mock_logger.info.assert_called_with("✅ SUCESSO - Credenciais válidas para usuário: user@test.com")
     
     @pytest.mark.unit
-    @patch('src.bling.requests.post')
     @patch('src.bling.logger')
-    def test_validar_credencial_unica_falha(self, mock_logger, mock_post):
-        """Testa validação com falha de credencial única."""
-        # Configura mock para retornar status diferente de 201
-        mock_response = Mock()
-        mock_response.status_code = 401
-        mock_post.return_value = mock_response
-        
-        resultado = self.validator.validar_credencial_unica("user@test.com", "senha_errada")
-        
-        assert resultado is False
-        mock_post.assert_called_once()
-        
-        # Verifica se o log de erro foi chamado
-        mock_logger.warning.assert_called_with("❌ ERRO - Credenciais inválidas para usuário: user@test.com (HTTP 401)")
+    def test_validar_credencial_unica_falha(self, mock_logger):
+        """Testa validação com falha de credencial única com método otimizado."""
+        # Mock do método otimizado
+        with patch.object(self.validator, '_executar_validacao_otimizada') as mock_exec:
+            mock_exec.return_value = {
+                'is_valid': False,
+                'status_code': 401,
+                'response_time': 89.7,
+                'error_details': 'Credenciais inválidas'
+            }
+            
+            resultado = self.validator.validar_credencial_unica("user@test.com", "senha_errada")
+            
+            assert resultado is False
+            mock_exec.assert_called_once_with("user@test.com", "senha_errada")
+            
+            # Verifica se o log de erro foi chamado
+            mock_logger.warning.assert_called_with("❌ ERRO - Credenciais inválidas para usuário: user@test.com (HTTP 401)")
     
     @pytest.mark.unit
     @patch('src.bling.requests.post')
@@ -222,6 +222,117 @@ class TestBlingCredentialValidator:
         
         with pytest.raises(Exception, match="Erro ao ler CSV"):
             validator.processar_arquivo_csv("teste_erro.csv")
+    
+    @pytest.mark.unit
+    def test_validar_dados_entrada_validos(self):
+        """Testa validação de dados de entrada válidos."""
+        resultado = self.validator._validar_dados_entrada("user@test.com", "senha123")
+        assert resultado is True
+    
+    @pytest.mark.unit
+    def test_validar_dados_entrada_username_vazio(self):
+        """Testa validação com username vazio."""
+        resultado = self.validator._validar_dados_entrada("", "senha123")
+        assert resultado is False
+        
+        resultado = self.validator._validar_dados_entrada("   ", "senha123")
+        assert resultado is False
+    
+    @pytest.mark.unit
+    def test_validar_dados_entrada_password_vazio(self):
+        """Testa validação com password vazio."""
+        resultado = self.validator._validar_dados_entrada("user@test.com", "")
+        assert resultado is False
+        
+        resultado = self.validator._validar_dados_entrada("user@test.com", "   ")
+        assert resultado is False
+    
+    @pytest.mark.unit
+    def test_validar_dados_entrada_username_curto(self):
+        """Testa validação com username muito curto."""
+        resultado = self.validator._validar_dados_entrada("ab", "senha123")
+        assert resultado is False
+    
+    @pytest.mark.unit
+    def test_validar_dados_entrada_password_placeholder(self):
+        """Testa validação com password placeholder."""
+        placeholders = ['[NOT_SAVED]', '[REDACTED]', '[HIDDEN]', 'N/A', 'NULL', 'undefined', 'null']
+        
+        for placeholder in placeholders:
+            resultado = self.validator._validar_dados_entrada("user@test.com", placeholder)
+            assert resultado is False
+    
+    @pytest.mark.unit
+    def test_analisar_resposta_bling_sucesso_201(self):
+        """Testa análise de resposta com código 201."""
+        mock_response = Mock()
+        mock_response.status_code = 201
+        mock_response.headers = {'Content-Type': 'application/json'}
+        mock_response.text = '{"status": "success"}'
+        
+        resultado = self.validator._analisar_resposta_bling(mock_response, 150.5)
+        
+        assert resultado['is_valid'] is True
+        assert resultado['status_code'] == 201
+        assert resultado['response_time'] == 150.5
+        assert resultado['error_details'] is None
+    
+    @pytest.mark.unit
+    def test_analisar_resposta_bling_erro_401(self):
+        """Testa análise de resposta com código 401."""
+        mock_response = Mock()
+        mock_response.status_code = 401
+        mock_response.headers = {'Content-Type': 'application/json'}
+        mock_response.text = '{"error": "Invalid credentials"}'
+        
+        resultado = self.validator._analisar_resposta_bling(mock_response, 95.2)
+        
+        assert resultado['is_valid'] is False
+        assert resultado['status_code'] == 401
+        assert resultado['error_details'] == "Credenciais inválidas"
+    
+    @pytest.mark.unit
+    def test_analisar_resposta_bling_redirect_sucesso(self):
+        """Testa análise de resposta com redirect para dashboard."""
+        mock_response = Mock()
+        mock_response.status_code = 302
+        mock_response.headers = {'Location': 'https://bling.com.br/dashboard'}
+        mock_response.text = ''
+        
+        resultado = self.validator._analisar_resposta_bling(mock_response, 200.0)
+        
+        assert resultado['is_valid'] is True
+        assert resultado['status_code'] == 302
+        assert 'dashboard' in resultado['error_details'].lower()
+    
+    @pytest.mark.unit
+    def test_verificar_resposta_adicional_sucesso(self):
+        """Testa verificação adicional com indicadores de sucesso."""
+        mock_response = Mock()
+        mock_response.headers = {'Content-Type': 'text/html'}
+        mock_response.text = '<html><body>Welcome to dashboard</body></html>'
+        
+        resultado = self.validator._verificar_resposta_adicional(mock_response)
+        assert resultado is True
+    
+    @pytest.mark.unit
+    def test_verificar_resposta_adicional_erro(self):
+        """Testa verificação adicional com indicadores de erro."""
+        mock_response = Mock()
+        mock_response.headers = {'Content-Type': 'text/html'}
+        mock_response.text = '<html><body>Invalid credentials</body></html>'
+        
+        resultado = self.validator._verificar_resposta_adicional(mock_response)
+        assert resultado is False
+    
+    @pytest.mark.unit
+    def test_validar_credencial_dados_invalidos(self):
+        """Testa validação com dados inválidos (falha na validação prévia)."""
+        resultado = self.validator.validar_credencial_unica("", "senha123")
+        assert resultado is False
+        
+        resultado = self.validator.validar_credencial_unica("user@test.com", "[NOT_SAVED]")
+        assert resultado is False
 
 
 class TestFactoryFunction:
