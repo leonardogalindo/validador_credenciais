@@ -295,6 +295,36 @@ class CSVHandler:
             logger.error(f"Erro ao criar template CSV: {str(e)}")
             raise
     
+    def _remover_duplicatas(self, resultados: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Remove duplicatas baseado em username + password.
+        
+        Args:
+            resultados: Lista de resultados com possíveis duplicatas
+            
+        Returns:
+            Lista de resultados únicos (primeira ocorrência mantida)
+        """
+        vistos = set()
+        resultados_unicos = []
+        duplicatas_removidas = 0
+        
+        for resultado in resultados:
+            username = resultado.get('username', '')
+            password = resultado.get('password', '')
+            chave_unica = (username, password)
+            
+            if chave_unica not in vistos:
+                vistos.add(chave_unica)
+                resultados_unicos.append(resultado)
+            else:
+                duplicatas_removidas += 1
+                logger.debug(f"🔄 Duplicata removida: {username}")
+        
+        if duplicatas_removidas > 0:
+            logger.info(f"🔄 Removidas {duplicatas_removidas} duplicatas")
+        
+        return resultados_unicos
+    
     def salvar_resultados_json(self, resultados: List[Dict[str, Any]], 
                               caminho_saida: str,
                               nome_arquivo_origem: str) -> None:
@@ -312,13 +342,16 @@ class CSVHandler:
         caminho = Path(caminho_saida)
         caminho.parent.mkdir(parents=True, exist_ok=True)
         
-        logger.info(f"Salvando {len(resultados)} resultados em JSON: {caminho_saida}")
+        # Remove duplicatas baseado em username + password
+        resultados_unicos = self._remover_duplicatas(resultados)
+        
+        logger.info(f"Salvando {len(resultados_unicos)} resultados únicos em JSON: {caminho_saida}")
         
         # Separa resultados por status
         validados_sucesso = []
         validados_erro = []
         
-        for resultado in resultados:
+        for resultado in resultados_unicos:
             item = {
                 'username': resultado.get('username', ''),
                 'password': resultado.get('password', ''),
@@ -337,10 +370,10 @@ class CSVHandler:
             'metadata': {
                 'arquivo_origem': nome_arquivo_origem,
                 'data_processamento': datetime.now().isoformat(),
-                'total_processados': len(resultados),
+                'total_processados': len(resultados_unicos),
                 'total_validos': len(validados_sucesso),
                 'total_invalidos': len(validados_erro),
-                'taxa_sucesso': f"{(len(validados_sucesso)/len(resultados)*100):.1f}%" if resultados else "0%"
+                'taxa_sucesso': f"{(len(validados_sucesso)/len(resultados_unicos)*100):.1f}%" if resultados_unicos else "0%"
             },
             'resultados': {
                 'validados_com_sucesso': validados_sucesso,

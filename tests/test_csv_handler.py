@@ -189,6 +189,51 @@ user6@test.com,N/A"""
         # Deve retornar False
         assert resultado is False
     
+    def test_remover_duplicatas(self):
+        """Testa remoção de duplicatas baseado em username + password."""
+        resultados_com_duplicatas = [
+            {'username': 'user1@test.com', 'password': 'senha123', 'is_valid': True, 'linha_original': 1},
+            {'username': 'user2@test.com', 'password': 'senha456', 'is_valid': False, 'linha_original': 2},
+            {'username': 'user1@test.com', 'password': 'senha123', 'is_valid': True, 'linha_original': 3},  # Duplicata
+            {'username': 'user3@test.com', 'password': 'senha789', 'is_valid': True, 'linha_original': 4},
+            {'username': 'user2@test.com', 'password': 'senha456', 'is_valid': False, 'linha_original': 5},  # Duplicata
+        ]
+        
+        resultados_unicos = self.csv_handler._remover_duplicatas(resultados_com_duplicatas)
+        
+        # Deve manter apenas 3 registros únicos (primeira ocorrência de cada)
+        assert len(resultados_unicos) == 3
+        
+        # Verifica se manteve as primeiras ocorrências
+        assert resultados_unicos[0]['username'] == 'user1@test.com'
+        assert resultados_unicos[0]['linha_original'] == 1  # Primeira ocorrência
+        
+        assert resultados_unicos[1]['username'] == 'user2@test.com'
+        assert resultados_unicos[1]['linha_original'] == 2  # Primeira ocorrência
+        
+        assert resultados_unicos[2]['username'] == 'user3@test.com'
+        assert resultados_unicos[2]['linha_original'] == 4
+    
+    def test_remover_duplicatas_lista_vazia(self):
+        """Testa remoção de duplicatas com lista vazia."""
+        resultados_vazios = []
+        resultados_unicos = self.csv_handler._remover_duplicatas(resultados_vazios)
+        assert len(resultados_unicos) == 0
+    
+    def test_remover_duplicatas_sem_duplicatas(self):
+        """Testa remoção de duplicatas quando não há duplicatas."""
+        resultados_unicos_originais = [
+            {'username': 'user1@test.com', 'password': 'senha123', 'is_valid': True},
+            {'username': 'user2@test.com', 'password': 'senha456', 'is_valid': False},
+            {'username': 'user3@test.com', 'password': 'senha789', 'is_valid': True},
+        ]
+        
+        resultados_unicos = self.csv_handler._remover_duplicatas(resultados_unicos_originais)
+        
+        # Deve manter todos os registros
+        assert len(resultados_unicos) == 3
+        assert resultados_unicos == resultados_unicos_originais
+    
     def test_salvar_resultados_csv(self):
         """Testa salvamento de resultados em CSV."""
         resultados = [
