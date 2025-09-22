@@ -83,9 +83,9 @@ class BlingCredentialValidator:
             is_valid = response.status_code == 201
             
             if is_valid:
-                logger.info(f"✅ Credencial válida para usuário: {username}")
+                logger.info(f"✅ SUCESSO - Credenciais válidas para usuário: {username}")
             else:
-                logger.debug(f"❌ Credencial inválida para usuário: {username} (Status: {response.status_code})")
+                logger.warning(f"❌ ERRO - Credenciais inválidas para usuário: {username} (HTTP {response.status_code})")
             
             return is_valid
             
@@ -141,9 +141,9 @@ class BlingCredentialValidator:
                 resultados.append(resultado)
                 
                 if is_valid:
-                    logger.info(f"✅ [{i}/{total}] Sucesso: {username}")
+                    logger.info(f"✅ [{i}/{total}] SUCESSO: {username}")
                 else:
-                    logger.debug(f"❌ [{i}/{total}] Falha: {username}")
+                    logger.warning(f"❌ [{i}/{total}] ERRO: {username}")
                     
             except Exception as e:
                 logger.error(f"💥 Erro ao processar credencial {i}: {str(e)}")

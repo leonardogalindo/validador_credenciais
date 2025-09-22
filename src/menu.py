@@ -9,8 +9,12 @@ import logging
 from typing import Optional, Callable, Dict, Any
 from enum import Enum
 
-from .locaweb import criar_validador_locaweb
-from .bling import criar_validador_bling
+try:
+    from .locaweb import criar_validador_locaweb
+    from .bling import criar_validador_bling
+except ImportError:
+    from locaweb import criar_validador_locaweb
+    from bling import criar_validador_bling
 
 
 # Configuração do logger para este módulo

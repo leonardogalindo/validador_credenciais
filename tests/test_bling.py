@@ -48,7 +48,8 @@ class TestBlingCredentialValidator:
     
     @pytest.mark.unit
     @patch('src.bling.requests.post')
-    def test_validar_credencial_unica_sucesso(self, mock_post):
+    @patch('src.bling.logger')
+    def test_validar_credencial_unica_sucesso(self, mock_logger, mock_post):
         """Testa validação bem-sucedida de credencial única."""
         # Configura mock para retornar status 201
         mock_response = Mock()
@@ -65,10 +66,14 @@ class TestBlingCredentialValidator:
         headers = call_args[1]['headers']
         assert headers['X-Security-Test'] == 'security-tests-bling'
         assert 'Bling-Security-Test' in headers['User-Agent']
+        
+        # Verifica se o log de sucesso foi chamado
+        mock_logger.info.assert_called_with("✅ SUCESSO - Credenciais válidas para usuário: user@test.com")
     
     @pytest.mark.unit
     @patch('src.bling.requests.post')
-    def test_validar_credencial_unica_falha(self, mock_post):
+    @patch('src.bling.logger')
+    def test_validar_credencial_unica_falha(self, mock_logger, mock_post):
         """Testa validação com falha de credencial única."""
         # Configura mock para retornar status diferente de 201
         mock_response = Mock()
@@ -79,6 +84,9 @@ class TestBlingCredentialValidator:
         
         assert resultado is False
         mock_post.assert_called_once()
+        
+        # Verifica se o log de erro foi chamado
+        mock_logger.warning.assert_called_with("❌ ERRO - Credenciais inválidas para usuário: user@test.com (HTTP 401)")
     
     @pytest.mark.unit
     @patch('src.bling.requests.post')
