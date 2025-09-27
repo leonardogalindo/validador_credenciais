@@ -222,5 +222,4 @@ MIT License - veja o arquivo LICENSE para detalhes.
 
 Para suporte e dúvidas:
 - Abra uma issue no GitHub
-- Consulte a documentação no GEMINI.md
 - Verifique os logs em `logs/` para diagnóstico
