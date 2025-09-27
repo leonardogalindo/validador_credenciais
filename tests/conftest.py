@@ -6,10 +6,11 @@ entre todos os testes do projeto.
 
 import logging
 import os
-import pytest
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 from src.settings import AppConfig, LoggingConfig
 
@@ -32,8 +33,10 @@ def temp_directory():
 @pytest.fixture
 def mock_env_vars():
     """Fixture para mockar variáveis de ambiente."""
+
     def _mock_env(**kwargs):
-        return patch.dict('os.environ', kwargs, clear=True)
+        return patch.dict("os.environ", kwargs, clear=True)
+
     return _mock_env
 
 
@@ -60,26 +63,26 @@ def sample_validation_results():
     """Retorna resultados de validação de exemplo para testes."""
     return [
         {
-            'username': 'user1@test.com',
-            'password': 'senha123',
-            'is_valid': True,
-            'error': None,
-            'linha_original': 2
+            "username": "user1@test.com",
+            "password": "senha123",
+            "is_valid": True,
+            "error": None,
+            "linha_original": 2,
         },
         {
-            'username': 'user2@test.com',
-            'password': 'senha456',
-            'is_valid': False,
-            'error': 'Credenciais inválidas',
-            'linha_original': 3
+            "username": "user2@test.com",
+            "password": "senha456",
+            "is_valid": False,
+            "error": "Credenciais inválidas",
+            "linha_original": 3,
         },
         {
-            'username': 'user3@test.com',
-            'password': 'senha789',
-            'is_valid': True,
-            'error': None,
-            'linha_original': 4
-        }
+            "username": "user3@test.com",
+            "password": "senha789",
+            "is_valid": True,
+            "error": None,
+            "linha_original": 4,
+        },
     ]
 
 
@@ -92,26 +95,26 @@ def isolated_app_config(temp_directory):
     original_txt_dir = AppConfig.TXT_OUTPUT_DIR
     original_json_dir = AppConfig.JSON_OUTPUT_DIR
     original_log_dir = LoggingConfig.LOG_DIR
-    
+
     # Configura diretórios temporários
     AppConfig.DATA_DIR = temp_directory / "data"
-    AppConfig.CSV_INPUT_DIR = AppConfig.DATA_DIR / 'csv'
-    AppConfig.TXT_OUTPUT_DIR = AppConfig.DATA_DIR / 'txt'
-    AppConfig.JSON_OUTPUT_DIR = AppConfig.DATA_DIR / 'json'
+    AppConfig.CSV_INPUT_DIR = AppConfig.DATA_DIR / "csv"
+    AppConfig.TXT_OUTPUT_DIR = AppConfig.DATA_DIR / "txt"
+    AppConfig.JSON_OUTPUT_DIR = AppConfig.DATA_DIR / "json"
     LoggingConfig.LOG_DIR = temp_directory / "logs"
-    
+
     # Cria diretórios
     AppConfig.create_directories()
     LoggingConfig.create_log_directory()
-    
+
     yield {
-        'data_dir': AppConfig.DATA_DIR,
-        'csv_dir': AppConfig.CSV_INPUT_DIR,
-        'txt_dir': AppConfig.TXT_OUTPUT_DIR,
-        'json_dir': AppConfig.JSON_OUTPUT_DIR,
-        'log_dir': LoggingConfig.LOG_DIR
+        "data_dir": AppConfig.DATA_DIR,
+        "csv_dir": AppConfig.CSV_INPUT_DIR,
+        "txt_dir": AppConfig.TXT_OUTPUT_DIR,
+        "json_dir": AppConfig.JSON_OUTPUT_DIR,
+        "log_dir": LoggingConfig.LOG_DIR,
     }
-    
+
     # Restaura configurações originais
     AppConfig.DATA_DIR = original_data_dir
     AppConfig.CSV_INPUT_DIR = original_csv_dir
@@ -123,10 +126,11 @@ def isolated_app_config(temp_directory):
 @pytest.fixture
 def mock_locaweb_api():
     """Mock para API da Locaweb."""
+
     def _create_mock(success_users=None, fail_users=None, error_users=None):
         """
         Cria mock da API com comportamentos específicos.
-        
+
         Args:
             success_users: Lista de usuários que devem retornar sucesso (200)
             fail_users: Lista de usuários que devem retornar falha (401)
@@ -135,16 +139,17 @@ def mock_locaweb_api():
         success_users = success_users or []
         fail_users = fail_users or []
         error_users = error_users or []
-        
+
         def mock_post_side_effect(url, data, **kwargs):
             from unittest.mock import Mock
+
             import requests
-            
-            username = data.get('username', '')
-            
+
+            username = data.get("username", "")
+
             if username in error_users:
                 raise requests.RequestException(f"Erro simulado para {username}")
-            
+
             mock_response = Mock()
             if username in success_users:
                 mock_response.status_code = 200
@@ -153,11 +158,11 @@ def mock_locaweb_api():
             else:
                 # Comportamento padrão: alterna entre sucesso e falha
                 mock_response.status_code = 200 if hash(username) % 2 == 0 else 401
-            
+
             return mock_response
-        
-        return patch('requests.post', side_effect=mock_post_side_effect)
-    
+
+        return patch("requests.post", side_effect=mock_post_side_effect)
+
     return _create_mock
 
 
@@ -167,18 +172,18 @@ def clean_loggers():
     # Limpa antes do teste
     root_logger = logging.getLogger()
     root_logger.handlers.clear()
-    
-    for logger_name in ['audit', 'settings']:
+
+    for logger_name in ["audit", "settings"]:
         logger = logging.getLogger(logger_name)
         logger.handlers.clear()
-    
+
     yield
-    
+
     # Limpa depois do teste
     root_logger = logging.getLogger()
     root_logger.handlers.clear()
-    
-    for logger_name in ['audit', 'settings']:
+
+    for logger_name in ["audit", "settings"]:
         logger = logging.getLogger(logger_name)
         logger.handlers.clear()
 
@@ -187,26 +192,20 @@ def clean_loggers():
 def valid_env_config():
     """Configuração válida de variáveis de ambiente para testes."""
     return {
-        'LOCAWEB_LOGIN_URL': 'https://test.locaweb.com/api',
-        'REQUEST_TIMEOUT': '30',
-        'LOG_LEVEL': 'INFO',
-        'CSV_ENCODING': 'utf-8',
-        'INCLUDE_PASSWORDS_IN_OUTPUT': 'false'
+        "LOCAWEB_LOGIN_URL": "https://test.locaweb.com/api",
+        "REQUEST_TIMEOUT": "30",
+        "LOG_LEVEL": "INFO",
+        "CSV_ENCODING": "utf-8",
+        "INCLUDE_PASSWORDS_IN_OUTPUT": "false",
     }
 
 
 # Marcadores para categorizar testes
 def pytest_configure(config):
     """Configuração adicional do pytest."""
-    config.addinivalue_line(
-        "markers", "unit: marca testes unitários"
-    )
-    config.addinivalue_line(
-        "markers", "integration: marca testes de integração"
-    )
-    config.addinivalue_line(
-        "markers", "slow: marca testes que demoram para executar"
-    )
+    config.addinivalue_line("markers", "unit: marca testes unitários")
+    config.addinivalue_line("markers", "integration: marca testes de integração")
+    config.addinivalue_line("markers", "slow: marca testes que demoram para executar")
     config.addinivalue_line(
         "markers", "network: marca testes que fazem requisições de rede"
     )
@@ -221,7 +220,7 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.unit)
         else:
             item.add_marker(pytest.mark.integration)
-        
+
         # Adiciona marcador 'network' para testes que fazem requisições
         if "requests" in str(item.function.__code__.co_names):
             item.add_marker(pytest.mark.network)
@@ -230,35 +229,39 @@ def pytest_collection_modifyitems(config, items):
 # Hook para relatório personalizado
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     """Adiciona resumo personalizado ao final dos testes."""
-    if hasattr(terminalreporter, 'stats'):
-        passed = len(terminalreporter.stats.get('passed', []))
-        failed = len(terminalreporter.stats.get('failed', []))
-        skipped = len(terminalreporter.stats.get('skipped', []))
-        
+    if hasattr(terminalreporter, "stats"):
+        passed = len(terminalreporter.stats.get("passed", []))
+        failed = len(terminalreporter.stats.get("failed", []))
+        skipped = len(terminalreporter.stats.get("skipped", []))
+
         terminalreporter.write_sep("=", "RESUMO DOS TESTES")
         terminalreporter.write_line(f"✅ Passou: {passed}")
         terminalreporter.write_line(f"❌ Falhou: {failed}")
         terminalreporter.write_line(f"⏭️  Pulou: {skipped}")
-        
+
         if failed == 0:
             terminalreporter.write_line("🎉 Todos os testes passaram!")
         else:
-            terminalreporter.write_line("⚠️  Alguns testes falharam. Verifique os detalhes acima.")
+            terminalreporter.write_line(
+                "⚠️  Alguns testes falharam. Verifique os detalhes acima."
+            )
 
 
 # Configuração para testes lentos
 def pytest_runtest_setup(item):
     """Configuração executada antes de cada teste."""
     # Pula testes marcados como 'slow' se não for explicitamente solicitado
-    if "slow" in item.keywords and not item.config.getoption("--runslow", default=False):
+    if "slow" in item.keywords and not item.config.getoption(
+        "--runslow", default=False
+    ):
         pytest.skip("Teste lento pulado (use --runslow para executar)")
 
 
 def pytest_addoption(parser):
     """Adiciona opções personalizadas ao pytest."""
     parser.addoption(
-        "--runslow", 
-        action="store_true", 
-        default=False, 
-        help="Executa testes marcados como lentos"
+        "--runslow",
+        action="store_true",
+        default=False,
+        help="Executa testes marcados como lentos",
     )
