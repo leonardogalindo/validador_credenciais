@@ -34,7 +34,7 @@ class MenuValidador:
             "1": {
                 "nome": "Locaweb",
                 "tipo": TipoEmpresa.LOCAWEB,
-                "descricao": "Validação de credenciais via API da Locaweb",
+                "descricao": "Validação de credenciais Locaweb",
                 "factory": criar_validador_locaweb,
             }
         }
@@ -46,7 +46,7 @@ class MenuValidador:
         print("\n" + "=" * 60)
         print("🔐 VALIDADOR DE CREDENCIAIS")
         print("=" * 60)
-        print("\nEscolha o serviço para validação:")
+        print("\nEscolha o Tenant para validação:")
         print()
 
         for opcao, dados in self.opcoes.items():

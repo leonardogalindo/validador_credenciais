@@ -1,0 +1,26 @@
+# MANIFEST.in - Especifica arquivos adicionais para incluir no pacote
+# Segue as diretrizes estabelecidas no GEMINI.md
+
+# Documentação
+include README.md
+include GEMINI.md
+include LICENSE
+
+# Configurações
+include requirements.txt
+include pytest.ini
+include .env.example
+
+# Diretórios de dados (vazios, mas estrutura importante)
+recursive-include data *
+recursive-include logs *
+recursive-include doc *
+
+# Exclui arquivos desnecessários
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.pyd
+global-exclude __pycache__
+global-exclude .git*
+global-exclude .pytest_cache
+global-exclude *.egg-info
