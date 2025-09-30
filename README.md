@@ -1,11 +1,11 @@
-# 🔐 Validador de Credenciais Locaweb
+# 🔐 Validador de Credenciais
 
 [![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://img.shields.io/badge/tests-passing-green.svg)](tests/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Sistema de validação de credenciais em lote via API da Locaweb, desenvolvido em Python seguindo diretrizes de código limpo e modular.
+Sistema de validação de credenciais em lote.
 
 ---
 
@@ -34,11 +34,15 @@ Este projeto automatiza a verificação de credenciais de usuário (login e senh
 
 ## 🚀 Instalação
 
-Recomenda-se o uso de um ambiente virtual.
+Existem duas formas de instalar o projeto: para desenvolvimento ou como um pacote de linha de comando.
+
+### 1. Ambiente de Desenvolvimento
+
+Ideal para quem deseja modificar ou contribuir com o código.
 
 1.  **Clone o repositório:**
     ```bash
-    git clone https://github.com/seu-usuario/validador_credenciais.git
+    git clone https://github.com/leonardogalindo/validador_credenciais
     cd validador_credenciais
     ```
 
@@ -56,16 +60,48 @@ Recomenda-se o uso de um ambiente virtual.
 4.  **Configure as variáveis de ambiente:**
     Crie um arquivo `.env` a partir do `.env.example` e preencha as variáveis necessárias.
 
+### 2. Como Pacote de Linha de Comando (Recomendado)
+
+Esta opção instala o projeto como um comando no seu terminal. O `setup.py` configura o pacote para que o `pip` possa instalá-lo junto com um script de entrada (`validar-credenciais`).
+
+1.  **Clone o repositório:**
+    ```bash
+    git clone https://github.com/leonardogalindo/validador_credenciais
+    cd validador_credenciais
+    ```
+
+2.  **Instale o pacote com `pip`:**
+    Este comando irá ler o `setup.py` e instalar o projeto como um pacote em seu ambiente.
+    ```bash
+    pip install .
+    ```
+    *Para instalar em **modo de desenvolvimento** (editável), que permite que suas alterações no código-fonte sejam refletidas imediatamente, use `pip install -e .*`
+
+3.  **Configure as variáveis de ambiente:**
+    Crie um arquivo `.env` no diretório onde você executará o comando.
+
 ## 🛠️ Como Usar
 
-Para iniciar a validação, execute o `main.py`:
+A forma de uso depende de como você instalou o projeto.
 
+### 1. Executando como Pacote
+
+Se você instalou como um pacote, use o comando `validar-credenciais` em seu terminal:
+```bash
+validar-credenciais
+```
+
+### 2. Executando para Desenvolvimento
+
+Se você configurou o ambiente de desenvolvimento, execute o script `main.py` diretamente:
 ```bash
 python main.py
 ```
 
+### Fluxo de Uso
+
 1.  **Prepare os arquivos**: Coloque os arquivos `.csv` a serem validados no diretório `data/csv/`.
-2.  **Execute o programa**: O menu principal será exibido.
+2.  **Execute o programa**: Use `validar-credenciais` ou `python main.py`.
 3.  **Acompanhe o resultado**: Os relatórios em `.json` serão salvos em `data/json/`.
 
 ## 📚 Documentação Completa
