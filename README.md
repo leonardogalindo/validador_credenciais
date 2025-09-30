@@ -1,225 +1,81 @@
 # 🔐 Validador de Credenciais Locaweb
 
-Sistema de validação de credenciais em lote via API da Locaweb, desenvolvido em Python seguindo as diretrizes do GEMINI.md.
+[![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tests](https://img.shields.io/badge/tests-passing-green.svg)](tests/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-## 📋 Funcionalidades
+Sistema de validação de credenciais em lote via API da Locaweb, desenvolvido em Python seguindo diretrizes de código limpo e modular.
 
-- ✅ Validação de credenciais via API da Locaweb
-- 📊 Processamento em lote de arquivos CSV
-- 📄 Geração de relatórios em formato JSON
-- 🔒 Headers de segurança configurados
-- 📝 Sistema de logging completo (debug, error, audit, settings)
-- 🎯 Interface de linha de comando intuitiva
+---
+
+## 📖 Índice
+
+- [Sobre](#-sobre-o-projeto)
+- [Funcionalidades](#-funcionalidades)
+- [Instalação](#-instalação)
+- [Como Usar](#-como-usar)
+- [Documentação Completa](#-documentação-completa)
+- [Licença](#-licença)
+
+---
+
+## 🎯 Sobre o Projeto
+
+Este projeto automatiza a verificação de credenciais de usuário (login e senha) em lote, utilizando a API da Locaweb. Ele foi projetado para processar grandes volumes de dados a partir de arquivos CSV e gerar relatórios detalhados em formato JSON.
+
+## ✨ Funcionalidades
+
+-   ✅ **Validação em Lote**: Processa múltiplos arquivos CSV de uma só vez.
+-   📊 **Relatórios Detalhados**: Gera arquivos JSON com o status de cada credencial.
+-   🔒 **Segurança**: Utiliza headers de segurança e timeouts configuráveis.
+-   📝 **Logging Estruturado**: Registra logs de auditoria, erros e debug.
+-   ⚙️ **Interface de Comando**: Menu interativo para fácil utilização.
 
 ## 🚀 Instalação
 
-### Instalação via pip (Recomendado)
+Recomenda-se o uso de um ambiente virtual.
+
+1.  **Clone o repositório:**
+    ```bash
+    git clone https://github.com/seu-usuario/validador_credenciais.git
+    cd validador_credenciais
+    ```
+
+2.  **Crie e ative o ambiente virtual:**
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate
+    ```
+
+3.  **Instale as dependências:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Configure as variáveis de ambiente:**
+    Crie um arquivo `.env` a partir do `.env.example` e preencha as variáveis necessárias.
+
+## 🛠️ Como Usar
+
+Para iniciar a validação, execute o `main.py`:
 
 ```bash
-# Instalar o pacote
-pip install validador-credenciais
-
-# Ou instalar em modo de desenvolvimento
-git clone <repository-url>
-cd validador_credenciais
-pip install -e .
-```
-
-### Instalação Manual
-
-```bash
-# Clonar o repositório
-git clone <repository-url>
-cd validador_credenciais
-
-# Criar ambiente virtual
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-# ou
-.venv\Scripts\activate     # Windows
-
-# Instalar dependências
-pip install -r requirements.txt
-```
-
-## 🎯 Uso
-
-### Comando de Console (Após instalação via pip)
-
-```bash
-# Executar o validador
-validar-credenciais
-```
-
-### Execução Manual
-
-```bash
-# Executar diretamente
 python main.py
 ```
 
-### Fluxo de Uso
+1.  **Prepare os arquivos**: Coloque os arquivos `.csv` a serem validados no diretório `data/csv/`.
+2.  **Execute o programa**: O menu principal será exibido.
+3.  **Acompanhe o resultado**: Os relatórios em `.json` serão salvos em `data/json/`.
 
-1. **Preparar arquivo CSV**: Coloque seus arquivos CSV no diretório `data/csv/`
-2. **Executar o comando**: `validar-credenciais`
-3. **Selecionar Locaweb**: Escolha a opção 1 no menu
-4. **Aguardar processamento**: O sistema processará todos os arquivos CSV encontrados
-5. **Verificar resultados**: Os relatórios JSON serão salvos em `data/json/`
+## 📚 Documentação Completa
 
-## 📁 Estrutura de Arquivos
+A documentação detalhada do projeto está localizada no diretório `doc/`:
 
-```
-validador_credenciais/
-├── src/                    # Código fonte principal
-│   ├── __init__.py
-│   ├── locaweb.py         # Validador Locaweb
-│   ├── csv_handler.py     # Manipulação de CSV
-│   ├── menu.py            # Interface do menu
-│   └── settings.py        # Configurações
-├── tests/                 # Testes unitários
-├── data/                  # Diretórios de dados
-│   ├── csv/              # Arquivos CSV de entrada
-│   └── json/             # Relatórios JSON de saída
-├── logs/                  # Arquivos de log
-├── main.py               # Ponto de entrada
-├── setup.py              # Configuração do pacote
-├── requirements.txt      # Dependências
-├── GEMINI.md            # Diretrizes do projeto
-└── README.md            # Este arquivo
-```
+-   **[Estrutura do Projeto (`doc/STRUCTURE.md`)](./doc/STRUCTURE.md)**: Uma visão geral da arquitetura e organização dos arquivos.
+-   **[Guia de Dados (`doc/README_data.md`)](./doc/README_data.md)**: Convenções e uso do diretório `data/`.
+-   **[Guia de Contribuição (`doc/CONTRIBUTING.md`)](./doc/CONTRIBUTING.md)**: Instruções para quem deseja contribuir com o projeto.
 
-## 📊 Formato dos Arquivos CSV
+## 📄 Licença
 
-### Formato Simples
-```csv
-username,password
-usuario1@exemplo.com,senha123
-usuario2@exemplo.com,senha456
-```
-
-### Formato Locaweb Completo
-```csv
-name,username,email,mail_domain,cpf,rg,rg_or_ie,password,password_hash,url,internal,gender,address,phone,occupation,mother_name,company_name,cnpj,stealer_family,infection_date,hardware_id,hostname,malware_installation_path,ip,user_agent,brand,source,threat_id,breach_date
-,usuario@locaweb.com.br,usuario@locaweb.com.br,,,,,senha123,,,,,,,,,,,,,,,,,,LOCAWEB,DataBreach,DRP-001,2025-01-15
-```
-
-## ⚙️ Configuração
-
-### Variáveis de Ambiente
-
-Crie um arquivo `.env` baseado no `.env.example`:
-
-```bash
-# URL da API de login da Locaweb
-LOCAWEB_LOGIN_URL=https://login.locaweb.com.br/v1/tickets
-
-# Timeout para requisições HTTP (segundos)
-REQUEST_TIMEOUT=30
-
-# Encoding dos arquivos CSV
-CSV_ENCODING=utf-8
-```
-
-### Configurações de Logging
-
-O sistema gera logs em diferentes níveis:
-- `logs/debug.log` - Debug detalhado (DEV)
-- `logs/error.log` - Erros e falhas (DEV/PROD)
-- `logs/audit.log` - Auditoria crítica (PROD)
-- `logs/settings.log` - Compatibilidade histórica (DEV)
-
-## 🧪 Testes
-
-```bash
-# Executar todos os testes
-pytest
-
-# Executar com cobertura
-pytest --cov=src
-
-# Executar testes específicos
-pytest tests/test_menu.py -v
-```
-
-## 🔧 Desenvolvimento
-
-### Formatação de Código
-
-```bash
-# Formatação automática
-black src/ tests/ main.py
-
-# Organização de imports
-isort src/ tests/ main.py
-
-# Análise estática
-flake8 src/ tests/ main.py
-```
-
-### Estrutura de Desenvolvimento
-
-O projeto segue as diretrizes do GEMINI.md:
-- **PEP 8** para estilo de código
-- **Tipagem estática** com `typing`
-- **Docstrings** em todas as funções
-- **Logging estruturado** para auditoria
-- **Testes unitários** abrangentes
-
-## 📈 Exemplo de Relatório JSON
-
-```json
-{
-  "metadata": {
-    "arquivo_origem": "credenciais.csv",
-    "data_processamento": "2025-09-27T00:12:30.123456",
-    "total_processados": 3,
-    "total_validos": 2,
-    "total_invalidos": 1,
-    "taxa_sucesso": "66.7%"
-  },
-  "resultados": {
-    "validados_com_sucesso": [
-      {
-        "username": "usuario1@exemplo.com",
-        "password": "senha123",
-        "is_valid": true,
-        "linha_original": 2
-      }
-    ],
-    "validados_com_erro": [
-      {
-        "username": "usuario2@exemplo.com",
-        "password": "senha456",
-        "is_valid": false,
-        "error": "Credenciais inválidas",
-        "linha_original": 3
-      }
-    ]
-  }
-}
-```
-
-## 🔒 Segurança
-
-- Headers de segurança configurados automaticamente
-- Senhas incluídas nos relatórios JSON (mantenha-os seguros!)
-- Logs de auditoria para rastreabilidade
-- Timeout configurável para requisições HTTP
-
-## 📝 Licença
-
-MIT License - veja o arquivo LICENSE para detalhes.
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'feat: Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📞 Suporte
-
-Para suporte e dúvidas:
-- Abra uma issue no GitHub
-- Verifique os logs em `logs/` para diagnóstico
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
